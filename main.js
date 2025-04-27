@@ -66,12 +66,14 @@ const PORT = process.env.PORT || process.env.SERVER_PORT || 3000;
 protoType();
 serialize();
 
+// Fix the global.__dirname definition
 global.__filename = function filename(url = import.meta.url, isUnix = platform !== "win32") {
-  return isUnix ? /file:\/\/\//.test(url) ? fileURLToPath(url) : url : pathToFileURL(url).toString();
+  const filePath = isUnix ? /file:\/\/\//.test(url) ? fileURLToPath(url) : url : pathToFileURL(url).toString();
+  return filePath;
 };
 
-global.__dirname = function dirname(path) {
-  return path.dirname(global.__filename(path, true));
+global.__dirname = function dirname(url) {
+  return path.dirname(global.__filename(url, true));
 };
 
 global.__require = function require(path = import.meta.url) {
