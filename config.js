@@ -102,7 +102,7 @@ global.imagen2 = fs.readFileSync("./assets/sigma2.jpg")
 
 
 global.imag1 = fs.readFileSync("./assets/Sigma.jpg")
-global.imag2 = fs.readFileSync("./assets/sigma2.png")
+global.imag2 = fs.readFileSync("./assets/sigma2.jpg")
 global.imag3 = fs.readFileSync("./assets/sigma3.jpg")
 
 global.pimg = [imag1, imag2, imag3]
