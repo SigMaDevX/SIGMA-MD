@@ -66,7 +66,7 @@ const PORT = process.env.PORT || process.env.SERVER_PORT || 3000;
 protoType();
 serialize();
 
-// Fix the global.__dirname definition
+// Fixed path handling
 global.__filename = function filename(url = import.meta.url, isUnix = platform !== "win32") {
   const filePath = isUnix ? /file:\/\/\//.test(url) ? fileURLToPath(url) : url : pathToFileURL(url).toString();
   return filePath;
@@ -93,7 +93,13 @@ global.timestamp = {
 
 const __dirname = global.__dirname(import.meta.url);
 global.opts = new Object(yargs(process.argv.slice(2)).exitProcess(false).parse());
-global.prefix = new RegExp('^[' + (process.env.PREFIX || "‎z/i!#$%+£¢€¥^°=¶∆×÷π√✓©®:;?&.,\\-").replace(/[|\\{}()[\]^$+*?.\-\^]/g, "\\$&") + ']');
+
+// Fixed prefix configuration
+const defaultPrefix = process.env.PREFIX || '.';
+global.prefix = new RegExp(
+  `^[${defaultPrefix.replace(/[|\\{}()[\]^$+*?.-]/g, '\\$&')}]`,
+  'i'
+);
 
 global.opts.db = process.env.DATABASE_URL;
 global.db = new Low(/https?:\/\//.test(opts.db || '') ? new cloudDBAdapter(opts.db) : /mongodb(\+srv)?:\/\//i.test(opts.db) ? new MongoDB(opts.db) : /postgresql:\/\/|postgres:\/\//i.test(opts.db) ? new PostgresDB(opts.db) : new JSONFile((opts._[0] ? opts._[0] + '_' : '') + 'database.json'));
@@ -296,12 +302,12 @@ async function connectionUpdate(update) {
     loadDatabase();
   }
   
-if (connection === 'open') {
+  if (connection === 'open') {
     const { jid, name } = conn.user;
     let StartMsg = "*✅ SIGMA-MD CONNECTED SUCCESSFULLY*\n\n" +
                     "*╭────◇ SIGMA-MD ◇─────╮*\n" +
                     "*├◈ Hello there SIGMA-MD User! 👋🏻*\n" +
-                    "*├◈ PREFIX :* [ " + prefix + " ]\n" +
+                    "*├◈ PREFIX :* [ " + (process.env.PREFIX || '.') + " ]\n" +
                     "*├◈ MODE :* " + botlive + "\n" +
                     "*├◈ Official Channel :* https://whatsapp.com/channel/0029Vb5WgwB8V0tnVsqSmC2N\n" +
                     "*├◈ GitHub Repo :* https://github.com/SigmaByteXD/SIGMA-MD\n" +
@@ -320,14 +326,14 @@ if (connection === 'open') {
     }, options);
 
     console.log(chalk.bold.greenBright("🔴 Successfully connected to WhatsApp ✅"));
-}
+  }
 
-let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
-if (reason == 405) {
+  let reason = new Boom(lastDisconnect?.error)?.output?.statusCode;
+  if (reason == 405) {
     await fs.unlinkSync("./sessions/creds.json");
     console.log(chalk.bold.redBright("[ ⚠ ] Connection replaced, Please wait a moment I'm going to restart...\nIf error appears start again with : npm start"));
     process.send("reset");
-} 
+  } 
     
   if (connection === "close") {
     if (reason === DisconnectReason.badSession) {
